@@ -1,16 +1,11 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable react/jsx-no-comment-textnodes */
 import { useEffect } from "react";
-// import { Product } from "../../app/models/product";
 import ProductList from "./ProductList";
-// import { useState, useEffect } from "react";
-// import agent from "../../app/api/agent";
 import LoadingComponent from "../../app/layout/LoadingComponent";
 import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
 import {
   fetchFilters,
-  fetchProductsAsync,
-  productSelectors,
   setPageNumber,
   setProductParams,
 } from "./catalogSlice";
@@ -20,6 +15,7 @@ import ProductSearch from "./ProductSearch";
 import RadionButtonGroup from "../../app/components/RadioButtonGroup";
 import CheckboxButtons from "../../app/components/CheckboxButtons";
 import AppPagination from "../../app/components/AppPagination";
+import useProducts from "../../app/hooks/useProducts";
 
 const sortOptions = [
   { value: "name", label: "Alphabetical" },
@@ -28,33 +24,9 @@ const sortOptions = [
 ];
 
 export default function Catalog() {
-  // const [products, setProducts] = useState<Product[]>([]);
-  // const [loading, setLoading] = useState(true);
-  const products = useAppSelector(productSelectors.selectAll);
-  const {
-    productsLoaded,
-    filtersLoaded,
-    brands,
-    types,
-    productParams,
-    metaData,
-  } = useAppSelector((state) => state.catalog);
+  const { products, brands, types, filtersLoaded, metaData } = useProducts();
+  const { productParams } = useAppSelector((state) => state.catalog);
   const dispatch = useAppDispatch();
-
-  // useEffect(() => {
-  //   agent.Catalog.list()
-  //     .then((products) => setProducts(products))
-  //     .catch(error => console.log(error))
-  //     .finally(() => setLoading(false));
-  // }, []);
-
-  useEffect(() => {
-    if (!productsLoaded) dispatch(fetchProductsAsync());
-  }, [productsLoaded, dispatch]);
-
-  useEffect(() => {
-    if (!filtersLoaded) dispatch(fetchFilters());
-  }, [dispatch, filtersLoaded]);
 
   if (!filtersLoaded) return <LoadingComponent message="Loading products..." />;
 
