@@ -6,6 +6,12 @@ import { useEffect } from "react";
 import useProducts from "../../app/hooks/useProducts";
 import AppSelectList from "../../app/components/AppSelectList";
 import AppDropzone from "../../app/components/AppDropzone";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { validationSchema } from "./productValidation";
+import agent from "../../app/api/agent";
+import { useAppDispatch } from "../../app/store/configureStore";
+import { setProduct } from "../catalog/catalogSlice";
+import { LoadingButton } from "@mui/lab";
 
 interface Props {
   product?: Product;
@@ -13,15 +19,41 @@ interface Props {
 }
 
 export default function ProductForm({ product, cancelEdit }: Props) {
-  const { control, reset, handleSubmit } = useForm();
+  const {
+    control,
+    reset,
+    handleSubmit,
+    watch,
+    formState: { isDirty, isSubmitting },
+  } = useForm({
+    resolver: yupResolver<any>(validationSchema),
+  });
   const { brands, types } = useProducts();
+  const watchFile = watch("file", null);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (product) reset(product);
-  }, [product, reset]);
+    if (product && !watchFile && !isDirty) reset(product);
+    return () => {
+      if (watchFile) URL.revokeObjectURL(watchFile.preview);
+    };
+  }, [product, reset, watchFile, isDirty]);
 
-  function handleSubmitData(data: FieldValues) {
-    console.log(data);
+  async function handleSubmitData(data: FieldValues) {
+    let response: Product;
+    console.log("Data", data)
+    try {
+      if (product) {
+        console.log("Product", product)
+        response = await agent.Admin.updateProduct(data);
+      } else {
+        response = await agent.Admin.createProduct(data);
+      }
+      dispatch(setProduct(response));
+      cancelEdit();
+    } catch (error: any) {
+      console.log(error);
+    }
   }
 
   return (
@@ -76,16 +108,35 @@ export default function ProductForm({ product, cancelEdit }: Props) {
             />
           </Grid>
           <Grid item xs={12}>
-            <AppDropzone control={control} name="file" />
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <AppDropzone control={control} name="file" />
+              {watchFile ? (
+                <img
+                  src={watchFile.preview}
+                  alt="preview"
+                  style={{ maxHeight: 200 }}
+                />
+              ) : (
+                <img
+                  src={product?.pictureUrl}
+                  alt={product?.name}
+                  style={{ maxHeight: 200 }}
+                />
+              )}
+            </Box>
           </Grid>
         </Grid>
         <Box display="flex" justifyContent="space-between" sx={{ mt: 3 }}>
           <Button onClick={cancelEdit} variant="contained" color="inherit">
             Cancel
           </Button>
-          <Button type="submit" variant="contained" color="success">
+          <LoadingButton loading={isSubmitting} type="submit" variant="contained" color="success">
             Submit
-          </Button>
+          </LoadingButton>
         </Box>
       </form>
     </Box>
