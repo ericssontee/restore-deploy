@@ -12,7 +12,7 @@ primary_region = "sin"
 [env]
   ASPNETCORE_URLS="http://+:8080"
   StripeSettings__PublishableKey="pk_test_51NeD0fIKmViXhXhgMTdku0GFuBpFsZ32jdaMamEaw05mhO4U8xY79oQSsksDiJmROZjEZbow151ZFRUHOKjEegRc00YzDSv0m6"
-  Cloudinary__CloudName=dbmbbul9k
+  Cloudinary__CloudName="dbmbbul9k"
   Cloudinary__ApiKey=426322437227662
 
 
