@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { router } from "../router/Routes";
 import { PaginatedResponse } from "../models/pagination";
 import { store } from "../store/configureStore";
+import { url } from "inspector";
 
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -48,6 +49,9 @@ axios.interceptors.response.use(
       case 401:
         toast.error(data.title || 'Unauthorized');
         break;
+      case 403:
+        toast.error('You are not allowed to do that!');
+        break;
       case 404:
         toast.error(data.title);
         break;
@@ -67,7 +71,27 @@ const request = {
   post: (url: string, body: {}) => axios.post(url, body).then(responseBody),
   put: (url: string, body: {}) => axios.put(url, body).then(responseBody),
   delete: (url: string) => axios.delete(url).then(responseBody),
+  postForm: (url: string, data: FormData) => axios.post(url, data, {
+    headers: {'Content-Type': 'multipart/form-data'}
+  }).then(responseBody),
+  putForm: (url: string, data: FormData) => axios.put(url, data, {
+    headers: {'Content-Type': 'multipart/form-data'},
+  }).then(responseBody)
 };
+
+function createFormData(item: any) {
+  let formData = new FormData();
+  for (const key in item) {
+    formData.append(key, item[key])
+  }
+  return formData
+;}
+
+const Admin = {
+  createProduct: (product: any) => request.postForm('products', createFormData(product)),
+  updateProduct: (product: any) => request.putForm('products', createFormData(product)),
+  deleteProduct: (id: number) => request.delete(`products/${id}`)
+}
 
 const Catalog = {
   list: (params: URLSearchParams) => request.get("products", params),
@@ -114,7 +138,8 @@ const agent = {
   Basket,
   Account,
   Orders,
-  Payments
+  Payments,
+  Admin
 };
 
 export default agent;
