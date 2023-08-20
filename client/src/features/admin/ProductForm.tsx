@@ -1,5 +1,5 @@
 import { Typography, Grid, Paper, Box, Button } from "@mui/material";
-import { Field, FieldValues, useForm } from "react-hook-form";
+import { FieldValues, useForm } from "react-hook-form";
 import AppTextInput from "../../app/components/AppTextInput";
 import { Product } from "../../app/models/product";
 import { useEffect } from "react";
@@ -41,10 +41,8 @@ export default function ProductForm({ product, cancelEdit }: Props) {
 
   async function handleSubmitData(data: FieldValues) {
     let response: Product;
-    console.log("Data", data)
     try {
       if (product) {
-        console.log("Product", product)
         response = await agent.Admin.updateProduct(data);
       } else {
         response = await agent.Admin.createProduct(data);
@@ -134,7 +132,12 @@ export default function ProductForm({ product, cancelEdit }: Props) {
           <Button onClick={cancelEdit} variant="contained" color="inherit">
             Cancel
           </Button>
-          <LoadingButton loading={isSubmitting} type="submit" variant="contained" color="success">
+          <LoadingButton
+            loading={isSubmitting}
+            type="submit"
+            variant="contained"
+            color="success"
+          >
             Submit
           </LoadingButton>
         </Box>

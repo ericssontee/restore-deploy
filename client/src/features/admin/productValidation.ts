@@ -13,5 +13,6 @@ export const validationSchema = yup.object({
       console.log(value)
       return !value},
     then: (schema) => schema.required("Please provide an image"),
+    otherwise: (schema) => schema.notRequired(),
   }),
 });

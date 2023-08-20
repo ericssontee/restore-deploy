@@ -113,7 +113,7 @@ namespace API.Controllers
 
             var result = await _context.SaveChangesAsync() > 0;
 
-            if (result) return NoContent();
+            if (result) return Ok(product);
 
             return BadRequest(new ProblemDetails{Title = "Problem updating product"});
         }

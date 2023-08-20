@@ -49,6 +49,9 @@ axios.interceptors.response.use(
       case 401:
         toast.error(data.title || 'Unauthorized');
         break;
+      case 403:
+        toast.error('You are not allowed to do that!');
+        break;
       case 404:
         toast.error(data.title);
         break;
@@ -79,7 +82,6 @@ const request = {
 function createFormData(item: any) {
   let formData = new FormData();
   for (const key in item) {
-    console.log(key);
     formData.append(key, item[key])
   }
   return formData
